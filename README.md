@@ -188,18 +188,10 @@ copies of the Software...
 ## 📬 Contact
 
 For any inquiries or contributions, feel free to reach out!
-
+linkabdulmonam@gmail.com
 ---
 
-### ✅ **Next Steps**
 
-Now, commit and push the **README.md** file to GitHub:
-
-```bash
-git add README.md
-git commit -m "Added detailed README.md"
-git push origin main
-```
 
 ---
 
