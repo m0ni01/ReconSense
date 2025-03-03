@@ -109,28 +109,6 @@ SLACK_WEBHOOK_URL="your_slack_webhook_url"
 
 ---
 
-## 💻 Development
-
-### Code Formatting
-
-```bash
-black .
-```
-
-### Linting
-
-```bash
-flake8 src/
-```
-
-### Running Tests
-
-```bash
-pytest
-```
-
----
-
 ## 🛡️ Security Considerations
 
 - Store API keys in **environment variables**.
