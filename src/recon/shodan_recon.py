@@ -11,7 +11,7 @@ shodan_client = shodan.Shodan(SHODAN_API_KEY)
 router = APIRouter()
 
 # Fetch IP Information from Shodan
-@router.get("/ip/{ip}")
+@router.get("/ip/{ip}",tags=["SHODAN - PASSIVE"])
 async def shodan_ip(ip: str):
     try:
         data = shodan_client.host(ip)
@@ -32,7 +32,7 @@ async def shodan_ip(ip: str):
 
 
 # getting assest with favicon hash
-@router.get("/favicon/")
+@router.get("/favicon/",tags=["SHODAN - PASSIVE"])
 async def search_by_favicon(hash: str):
     """Find IPs hosting the same favicon hash (useful for bug bounty asset discovery)."""
     favicon_hash = hash
@@ -48,7 +48,7 @@ async def search_by_favicon(hash: str):
         return {"error": str(e)}
 
 # Find All Assets Related to a Domain
-@router.get("/shodan/domain/{domain}")
+@router.get("/shodan/domain/{domain}",tags=["SHODAN - PASSIVE"])
 async def shodan_domain_lookup(domain: str):
     """Finds all related IPs and services for a domain via Shodan."""
     try:
@@ -59,7 +59,7 @@ async def shodan_domain_lookup(domain: str):
         return {"error": str(e)}
 
 # Find Related IPs Using ASN Lookup
-@router.get("/shodan/asn/{asn}")
+@router.get("/shodan/asn/{asn}",tags=["SHODAN - PASSIVE"])
 async def shodan_asn_lookup(asn: str):
     """Finds all IPs under a given ASN using Shodan."""
     try:
@@ -70,7 +70,7 @@ async def shodan_asn_lookup(asn: str):
         return {"error": str(e)}
 
 # Get Open Ports Across an IP Range
-@router.get("/shodan/ports/{ip_range}")
+@router.get("/shodan/ports/{ip_range}",tags=["SHODAN - PASSIVE"])
 async def shodan_ports(ip_range: str):
     """Finds all open ports for a given IP range."""
     try:

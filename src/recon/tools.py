@@ -24,7 +24,7 @@ class RequestData(BaseModel):
 router = APIRouter()
 
 
-@router.post("/request_tool/")
+@router.post("/request_tool/",tags=["TOOLS"])
 async def send_request(
     url: str,
     method: Literal["GET", "POST", "TRACE"],
@@ -54,7 +54,7 @@ async def send_request(
             raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/base64/encode/")
+@router.post("/base64/encode/",tags=["TOOLS"])
 async def encode_base64(text: str):
     """
     Encodes the given text into Base64 format.
@@ -66,7 +66,7 @@ async def encode_base64(text: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/base64/decode/")
+@router.post("/base64/decode/",tags=["TOOLS"])
 async def decode_base64(encoded_text: str):
     """
     Decodes the given Base64-encoded text back to its original string.
@@ -79,7 +79,7 @@ async def decode_base64(encoded_text: str):
         raise HTTPException(status_code=400, detail="Invalid Base64 string")
     
     
-@router.post("/url/encode/")
+@router.post("/url/encode/",tags=["TOOLS"])
 async def encode_url(text: str):
     """
     Encodes a given string into a URL-safe format.
@@ -90,7 +90,7 @@ async def encode_url(text: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/url/decode/")
+@router.post("/url/decode/",tags=["TOOLS"])
 async def decode_url(encoded_text: str):
     """
     Decodes a URL-encoded string back to its original form.
@@ -101,7 +101,7 @@ async def decode_url(encoded_text: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid URL-encoded string")
 
-@router.post("/unicode/encode/")
+@router.post("/unicode/encode/",tags=["TOOLS"])
 async def encode_unicode(text: str):
     """
     Encodes a given text into a Unicode escape sequence.
@@ -112,7 +112,7 @@ async def encode_unicode(text: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/unicode/decode/")
+@router.post("/unicode/decode/",tags=["TOOLS"])
 async def decode_unicode(encoded_text: str):
     """
     Decodes a Unicode escape sequence back to its original form.
@@ -129,7 +129,7 @@ import html
 
 app = FastAPI()
 
-@router.post("/html/encode/")
+@router.post("/html/encode/",tags=["TOOLS"])
 async def encode_html(text: str):
     """
     Encodes HTML special characters into their entity representations.
@@ -140,7 +140,7 @@ async def encode_html(text: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/html/decode/")
+@router.post("/html/decode/",tags=["TOOLS"])
 async def decode_html(encoded_text: str):
     """
     Decodes HTML entities back to their original characters.

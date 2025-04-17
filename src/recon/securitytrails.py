@@ -7,12 +7,12 @@ from typing import Literal
 router = APIRouter()
 st = SecurityTrails("msU8H8c4oHp_UHxxNhcpfotnHXoyMtuf")
 
-@router.get("/")
+@router.get("/",tags=["Security Trails - Passive"])
 def securitytrails_query():
     return {"msg":"securitytrails working fine"}
 
 # Testing api key
-@router.get("/test")
+@router.get("/test",tags=["Security Trails - Passive"])
 def test_api_key():
     try:
         msg = st.ping()
@@ -21,7 +21,7 @@ def test_api_key():
         return e 
 
 # Get domain info 
-@router.get("/domaininfo")
+@router.get("/domaininfo",tags=["Security Trails - Passive"])
 def get_domain_info(domain: str):
     try:
         info = st.domain_info(domain)
@@ -32,7 +32,7 @@ def get_domain_info(domain: str):
         return {"error": str(e)}
 
 # Get domain subdomains
-@router.get("/domain_subdomains")
+@router.get("/domain_subdomains",tags=["Security Trails - Passive"])
 def get_domain_subdomain(domain:str):
     try:
         subdomains = st.domain_subdomains(domain)
@@ -42,7 +42,7 @@ def get_domain_subdomain(domain:str):
     except SecurityTrailsError as e:
         return {"error": str(e)}
 
-@router.get("/domain_whois")
+@router.get("/domain_whois",tags=["Security Trails - Passive"])
 def get_domain_whois(domain:str):
     try:
         whois_info = st.domain_whois(domain)
@@ -53,7 +53,7 @@ def get_domain_whois(domain:str):
         return {"error": str(e)}
     
 # get domain dns history
-@router.get("/domain_dns_history")
+@router.get("/domain_dns_history",tags=["Security Trails - Passive"])
 def get_domain_dns_history(domain:str,Type: str , Page:int):
     try:
         dns_history = st.domain_history_dns(domain,Type,Page)
@@ -65,7 +65,7 @@ def get_domain_dns_history(domain:str,Type: str , Page:int):
 
 
 #ssl certificates
-@router.get("/ssl_certificates")
+@router.get("/ssl_certificates",tags=["Security Trails - Passive"])
 def get_ssl_certificates(domain:str,include_subdomain: bool,status:Literal["valid","all","expired"] = "valid"):
     url = f"https://api.securitytrails.com/v1/domain/{domain}/ssl?include_subdomains={include_subdomain}&status={status}"
     header = {"apikey": "msU8H8c4oHp_UHxxNhcpfotnHXoyMtuf",

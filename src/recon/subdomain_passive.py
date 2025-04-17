@@ -7,7 +7,7 @@ from  .slack_config  import send_slack_message
 router = APIRouter()
 
 # crt.sh API for subdomains
-@router.post("/crtsh/")
+@router.post("/crtsh/",tags=["RECON BASIC - PASSIVE"])
 def crtsh_query(domain : str):
     url = f"https://crt.sh/?q={domain}&output=json"
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -29,7 +29,7 @@ def crtsh_query(domain : str):
 
 
 # favicon hash
-@router.post("/favicon-hash")
+@router.post("/favicon-hash",tags=["RECON BASIC - PASSIVE"])
 def get_favicon_hash(domain: str):
     """Fetch favicon and compute its MD5 hash."""
     favicon_url = f"https://{domain}/favicon.ico"
@@ -53,7 +53,7 @@ def get_favicon_hash(domain: str):
 
 
 # using dig to get dns information
-@router.post("/dig")
+@router.post("/dig",tags=["RECON BASIC - PASSIVE"])
 def get_dns_records(domain):
     try:
         output = subprocess.check_output(["dig", domain, "ANY", "+short"], text=True)
@@ -62,7 +62,7 @@ def get_dns_records(domain):
         return {"error": str(e)}
     
     
-@router.post("/Wappalyzer")
+@router.post("/Wappalyzer",tags=["RECON BASIC - PASSIVE"])
 def get_wappalyzer(domain,api_key):
     url_wappalyzer=f"https://api.wappalyzer.com/v2/lookup/?urls=https://{domain}&sets=all"
     headers = {"User-Agent": "Mozilla/5.0",
@@ -75,7 +75,7 @@ def get_wappalyzer(domain,api_key):
             return {"error": f"Failed to get wappaluzer (Status: {response.status_code})"}
     except Exception as e:
         return {"error": str(e)}
-@router.post("/revers_ip_lookup")
+@router.post("/revers_ip_lookup",tags=["RECON BASIC - PASSIVE"])
 def reverse_ip_lookup(domain):
     try:
         response = requests.get(f"https://api.hackertarget.com/reverseiplookup/?q={domain}")
@@ -86,7 +86,7 @@ def reverse_ip_lookup(domain):
         return {"error": str(e)}   
     
   
-@router.get("/whois")
+@router.get("/whois",tags=["RECON BASIC - PASSIVE"])
 async def whois_lookup(domain: str):
     try:
         data = whois.whois(domain)
@@ -104,7 +104,7 @@ async def whois_lookup(domain: str):
         return {"error": str(e)}
 
     
-@router.get("/virustotal")
+@router.get("/virustotal",tags=["RECON BASIC - PASSIVE"])
 async def virustotal_lookup(domain: str):
     url = "https://www.virustotal.com/api/v3"
     apikey= "2acb1631b26620829c793bdf082fc8cb6f2b7c9f997b080fd08728147400e0d9"
