@@ -1,4 +1,5 @@
 import requests
+from pydantic import BaseModel
 from fastapi import APIRouter
 import hashlib , base64
 import subprocess
@@ -7,30 +8,35 @@ from  .slack_config  import send_slack_message
 router = APIRouter()
 
 # crt.sh API for subdomains
-@router.post("/crtsh/",tags=["RECON BASIC - PASSIVE"])
-def crtsh_query(domain : str):
+class DomainInput(BaseModel):
+    domain: str
+
+@router.post("/crtsh/", tags=["RECON BASIC - PASSIVE"])
+def crtsh_query(data: DomainInput):
+    domain = data.domain
     url = f"https://crt.sh/?q={domain}&output=json"
     headers = {"User-Agent": "Mozilla/5.0"}
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
         subdomains = {entry["name_value"] for entry in response.json()}
-        
-        #slack notification update
+
+        # Slack notification update
         message = (
-        f":white_check_mark: *CRTSH Task Completed!*\n"
-        f"*Domain:* `{domain}`\n"
-        f"*Subdomains Found:* {len(subdomains)}\n"
-        f"> {', '.join(subdomains) if subdomains else 'No subdomains found.'}"
-    )
+            f":white_check_mark: *CRTSH Task Completed!*\n"
+            f"*Domain:* `{domain}`\n"
+            f"*Subdomains Found:* {len(subdomains)}\n"
+            f"> {', '.join(subdomains) if subdomains else 'No subdomains found.'}"
+        )
         send_slack_message(message)
         return list(subdomains)
+    
     return []
-
 
 # favicon hash
 @router.post("/favicon-hash",tags=["RECON BASIC - PASSIVE"])
-def get_favicon_hash(domain: str):
+def get_favicon_hash(data: DomainInput):
+    domain = data.domain
     """Fetch favicon and compute its MD5 hash."""
     favicon_url = f"https://{domain}/favicon.ico"
 
@@ -54,7 +60,8 @@ def get_favicon_hash(domain: str):
 
 # using dig to get dns information
 @router.post("/dig",tags=["RECON BASIC - PASSIVE"])
-def get_dns_records(domain):
+def get_dns_records(data: DomainInput):
+    domain = data.domain
     try:
         output = subprocess.check_output(["dig", domain, "ANY", "+short"], text=True)
         return {"dns_records": output.split("\n")}
@@ -76,7 +83,8 @@ def get_wappalyzer(domain,api_key):
     except Exception as e:
         return {"error": str(e)}
 @router.post("/revers_ip_lookup",tags=["RECON BASIC - PASSIVE"])
-def reverse_ip_lookup(domain):
+def reverse_ip_lookup(data:DomainInput):
+    domain = data.domain
     try:
         response = requests.get(f"https://api.hackertarget.com/reverseiplookup/?q={domain}")
         if response.status_code == 200:

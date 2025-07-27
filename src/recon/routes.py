@@ -7,5 +7,5 @@ router = APIRouter()
 
 @router.get("/test")
 def sayit():
-        return {"msg":f"nothing to say"}
+        return {"msg":f"Testing passed !!!"}
     

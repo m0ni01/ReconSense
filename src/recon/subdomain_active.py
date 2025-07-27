@@ -1,4 +1,5 @@
-from fastapi import FastAPI , APIRouter , HTTPException
+from fastapi import FastAPI , APIRouter , HTTPException ,Body
+from pydantic import BaseModel
 import nmap
 import re
 import os
@@ -6,73 +7,86 @@ import subprocess
 
 router = APIRouter()
 
-@router.get("/nmap/quick_scan",tags=["Active Scan"])
+@router.get("/nmap/quick_scan", tags=["Active Scan"])
 def quick_scan(target: str):
     """
     Perform a quick scan (-F) on a given target.
     """
     try:
-        nmap.scan(hosts=target, arguments="-F")
-        return nmap.all_hosts()
+        nm = nmap.PortScanner()
+        nm.scan(hosts=target, arguments="-F")
+        results = {host: nm[host].all_protocols() for host in nm.all_hosts()}
+        return {"hosts": results}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))    
-
-@router.get("/nmap/ports/",tags=["Active Scan"])
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/nmap/ports/", tags=["Active Scan"])
 def open_ports(target: str):
     """
     Get open ports for a target.
     """
     try:
-        nmap.scan(target, arguments="-p-")
-        open_ports = {host: nmap[host]["tcp"].keys() for host in nmap.all_hosts()}
+        nm = nmap.PortScanner()
+        nm.scan(hosts=target, arguments="-p-")
+        open_ports = {host: list(nm[host]["tcp"].keys()) for host in nm.all_hosts() if "tcp" in nm[host]}
         return open_ports
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/nmap/os/",tags=["Active Scan"])
+@router.get("/nmap/os/", tags=["Active Scan"])
 def detect_os(target: str):
     """
     Perform OS detection on the target.
     """
     try:
-        nmap.scan(hosts=target, arguments="-O")
-        return nmap.all_hosts()
+        nm = nmap.PortScanner()
+        nm.scan(hosts=target, arguments="-O")
+        os_info = {host: nm[host].get("osmatch", []) for host in nm.all_hosts()}
+        return os_info
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 def is_valid_nmap_options(options: str) -> bool:
     """
     Validates Nmap options to prevent command injection.
     """
-    # Block dangerous characters
-    if ";" in options or "&" in options or "`" in options:
+    if any(x in options for x in [";", "&", "`"]):
         return False
 
-    # Allow only valid Nmap parameters
     valid_nmap_pattern = re.compile(r"^[-\w\s,./]+$")
     return bool(valid_nmap_pattern.match(options))
 
 
-@router.post("/nmap/custom/scan/",tags=["Active Scan"])
-def custom_scan(request: str):
+
+class ScanOptions(BaseModel):
+    options: str  # The full Nmap command string, e.g. "-O 192.168.100.1"
+
+@router.post("/nmap/custom/scan/", tags=["Active Scan"])
+def custom_scan(scan: ScanOptions):
     """
-    Perform an Nmap scan with user-specified options.
+    Accepts a full Nmap command as a single string (e.g. "-O 192.168.1.1").
     """
     try:
-        # Validate options to prevent command injection
-        if not is_valid_nmap_options(request.options):
-            raise HTTPException(status_code=400, detail="Invalid or dangerous scan options!")
+        parts = scan.options.strip().split()
+        if len(parts) < 2:
+            raise HTTPException(status_code=400, detail="Please include target IP in options.")
 
-        # Execute the scan
-        scan_result = nmap.scan(hosts=request.target, arguments=request.options)
+        target = parts[-1]
+        arguments = " ".join(parts[:-1])
+
+        nm = nmap.PortScanner()
+        nm.scan(hosts=target, arguments=arguments)
 
         return {
-            "target": request.target,
-            "nmap_version": nmap.nmap_version(),
-            "scan_info": scan_result["nmap"]["scanstats"],
-            "hosts": scan_result.get("scan", {}),
+            "target": target,
+            "nmap_version": nm.nmap_version(),
+            "scan_info": nm.scanstats(),
+            "hosts": list(nm.all_hosts()),
+            "raw_result": nm._scan_result  # includes full scan info
         }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 import requests
 
 #security alert : hardcoded endpoint
-SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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"
+SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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"
 def send_slack_message(message):
     """Send a message to Slack using Webhook."""
     payload = {"text": message}

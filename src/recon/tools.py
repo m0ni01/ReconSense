@@ -21,6 +21,8 @@ class RequestData(BaseModel):
     headers: dict = None
     body: dict = None
     
+class DomainInput(BaseModel):
+    text : str
 router = APIRouter()
 
 
@@ -53,12 +55,16 @@ async def send_request(
             logging.error(f"Error: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
+class TextInput(BaseModel):
+    text: str
 
 @router.post("/base64/encode/",tags=["TOOLS"])
-async def encode_base64(text: str):
+async def encode_base64(data: TextInput):
+    print("Received payload:", data)
     """
     Encodes the given text into Base64 format.
     """
+    text = data.text
     try:
         encoded_bytes = base64.b64encode(text.encode("utf-8"))
         encoded_str = encoded_bytes.decode("utf-8")
